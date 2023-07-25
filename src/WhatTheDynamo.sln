@@ -1,0 +1,59 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33815.320
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WhatTheDynamo.2024", "WhatTheDynamo.2024\WhatTheDynamo.2024.csproj", "{565E0017-65E4-4D6B-BC96-0DD7A7B2EDD6}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "WhatTheDynamo.SharedProject", "WhatTheDynamo.SharedProject\WhatTheDynamo.SharedProject.shproj", "{5A5EF2ED-DE93-4E21-9738-6091D9249C96}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WhatTheDynamo.2023", "WhatTheDynamo.2023\WhatTheDynamo.2023.csproj", "{B50CEBDC-F5B8-4BE7-8150-1027B9A72B08}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WhatTheDynamo.2022", "WhatTheDynamo.2022\WhatTheDynamo.2022.csproj", "{0DF80335-8FA3-407F-835D-C8B064AC9C96}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WhatTheDynamo.2021", "WhatTheDynamo.2021\WhatTheDynamo.2021.csproj", "{477BA136-D0A9-4412-B861-088341CBE4DB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WhatTheDynamo.2020", "WhatTheDynamo.2020\WhatTheDynamo.2020.csproj", "{4EA04152-652A-422D-84C5-AA432121B722}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{565E0017-65E4-4D6B-BC96-0DD7A7B2EDD6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{565E0017-65E4-4D6B-BC96-0DD7A7B2EDD6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{565E0017-65E4-4D6B-BC96-0DD7A7B2EDD6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{565E0017-65E4-4D6B-BC96-0DD7A7B2EDD6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B50CEBDC-F5B8-4BE7-8150-1027B9A72B08}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B50CEBDC-F5B8-4BE7-8150-1027B9A72B08}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B50CEBDC-F5B8-4BE7-8150-1027B9A72B08}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B50CEBDC-F5B8-4BE7-8150-1027B9A72B08}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0DF80335-8FA3-407F-835D-C8B064AC9C96}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0DF80335-8FA3-407F-835D-C8B064AC9C96}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0DF80335-8FA3-407F-835D-C8B064AC9C96}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0DF80335-8FA3-407F-835D-C8B064AC9C96}.Release|Any CPU.Build.0 = Release|Any CPU
+		{477BA136-D0A9-4412-B861-088341CBE4DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{477BA136-D0A9-4412-B861-088341CBE4DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{477BA136-D0A9-4412-B861-088341CBE4DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{477BA136-D0A9-4412-B861-088341CBE4DB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4EA04152-652A-422D-84C5-AA432121B722}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4EA04152-652A-422D-84C5-AA432121B722}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4EA04152-652A-422D-84C5-AA432121B722}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4EA04152-652A-422D-84C5-AA432121B722}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1E2F601F-5786-4F5C-A3A1-04F67E31C473}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		WhatTheDynamo.SharedProject\WhatTheDynamo.SharedProject.projitems*{0df80335-8fa3-407f-835d-c8b064ac9c96}*SharedItemsImports = 4
+		WhatTheDynamo.SharedProject\WhatTheDynamo.SharedProject.projitems*{477ba136-d0a9-4412-b861-088341cbe4db}*SharedItemsImports = 4
+		WhatTheDynamo.SharedProject\WhatTheDynamo.SharedProject.projitems*{4ea04152-652a-422d-84c5-aa432121b722}*SharedItemsImports = 4
+		WhatTheDynamo.SharedProject\WhatTheDynamo.SharedProject.projitems*{565e0017-65e4-4d6b-bc96-0dd7a7b2edd6}*SharedItemsImports = 4
+		WhatTheDynamo.SharedProject\WhatTheDynamo.SharedProject.projitems*{5a5ef2ed-de93-4e21-9738-6091d9249c96}*SharedItemsImports = 13
+		WhatTheDynamo.SharedProject\WhatTheDynamo.SharedProject.projitems*{b50cebdc-f5b8-4be7-8150-1027b9a72b08}*SharedItemsImports = 4
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,18 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33815.320
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "WhatTheDynamo.SharedProject", "WhatTheDynamo.SharedProject.shproj", "{5A5EF2ED-DE93-4E21-9738-6091D9249C96}"
+EndProject
+Global
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F555FF0D-194A-4B79-A24C-F929622DC476}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		WhatTheDynamo.SharedProject.projitems*{5a5ef2ed-de93-4e21-9738-6091d9249c96}*SharedItemsImports = 13
+	EndGlobalSection
+EndGlobal

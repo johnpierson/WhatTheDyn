@@ -1,11 +1,7 @@
 using Autodesk.Internal.InfoCenter;
-using Autodesk.Revit.ApplicationServices;
-using Autodesk.Revit.Attributes;
-using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using Autodesk.Windows;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using WhatTheDynamo.Classes;
 
@@ -19,7 +15,12 @@ namespace WhatTheDynamo
             Global.DynamoVersionFound = FindDynamoVersions();
             if (Global.DynamoVersionFound)
             {
+                //first show the notification
                 ShowNotification();
+
+                //then rename the button
+                var button = Utilities.GetButton("Manage", "Visual Programming", "Dynamo");
+                button.Text = $"Dynamo{Environment.NewLine}{Global.DynamoVersion.Major}.{Global.DynamoVersion.Minor}";
             }
             return Result.Succeeded;
         }

@@ -18,13 +18,11 @@ namespace WhatTheDynamo
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            if (Global.DynamoVersionFound)
-            {
-                App.ShowNotification();
-                return Result.Succeeded;
-            }
+            if (!Global.DynamoVersionFound) return Result.Failed;
 
-            return Result.Failed;
+            App.ShowNotification();
+            return Result.Succeeded;
+
         }
     }
 }

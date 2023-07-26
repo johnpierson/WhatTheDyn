@@ -3,13 +3,7 @@ using Autodesk.Revit.UI;
 using Autodesk.Windows;
 using System;
 using System.Linq;
-using System.Windows;
-using System.Windows.Interop;
-using Autodesk.Revit.DB.Events;
-using Autodesk.Revit.UI.Events;
 using WhatTheDynamo.Classes;
-using RibbonButton = Autodesk.Windows.RibbonButton;
-using RibbonItem = Autodesk.Revit.UI.RibbonItem;
 
 
 namespace WhatTheDynamo
@@ -30,13 +24,7 @@ namespace WhatTheDynamo
                 //then rename the button
                 var button = Utilities.GetButton("Manage", "Visual Programming", "Dynamo");
                 button.Text = $"Dynamo{Environment.NewLine}{Global.DynamoVersion.Major}.{Global.DynamoVersion.Minor}";
-
-      
-                //and set the contextual help to take you to the packages folder
-  
             }
-
-            
 
             return Result.Succeeded;
         }

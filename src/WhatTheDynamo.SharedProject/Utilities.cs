@@ -1,12 +1,4 @@
-﻿using Autodesk.Revit.DB;
-using Autodesk.Revit.UI;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Windows.Media;
-using Autodesk.Revit.DB.Events;
+﻿using System.Linq;
 using WhatTheDynamo.Classes;
 using AW = Autodesk.Windows;
 

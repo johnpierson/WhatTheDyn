@@ -11,7 +11,6 @@ namespace WhatTheDynamo.Classes
 {
     internal class Global
     {
-        internal static Window RevitWindow { get; set; }
         internal static string ExecutingPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         public static string UserRoaming => Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
         internal static Version DynamoVersion { get; set; }

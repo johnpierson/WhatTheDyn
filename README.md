@@ -24,7 +24,7 @@ What the Dyn?! is currently built against all current versions of Revit (2020,20
 - N/A
 
 ## Contributors
-This tool is primarily managed by the author of http://designtechunraveled.com, [ParallaxTeam](https://www.parallaxteam.com/), and by [People Like You™](https://github.com/johnpierson/FETCH/graphs/contributors).
+This tool is primarily managed by the author of http://designtechunraveled.com and by [People Like You™](https://github.com/johnpierson/FETCH/graphs/contributors).
 
 ## Help improve What the Dyn?!
 If you're interested in contributing to What the Dyn?!, just submit a [pull request](https://github.com/johnpierson/WhatTheDyn/pulls) or a [feature request](https://github.com/johnpierson/WhatTheDyn/issues) .

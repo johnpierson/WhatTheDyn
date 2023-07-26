@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <RevitAddIns>
   <AddIn Type="Command">
-    <Text>Command WhatTheDynamo</Text>
-    <Description>Some description for WhatTheDynamo</Description>
+    <Text>What the Dyn?!</Text>
+    <Description>What the Dyn?! allows you to know which version of Dynamo is loaded.</Description>
     <Assembly>WhatTheDynamo.dll</Assembly>
     <FullClassName>WhatTheDynamo.Command</FullClassName>
     <ClientId>f61a5b99-4c54-4e8f-b39d-75f830718625</ClientId>

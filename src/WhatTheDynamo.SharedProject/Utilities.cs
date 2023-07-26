@@ -1,7 +1,13 @@
-﻿using System;
+﻿using Autodesk.Revit.DB;
+using Autodesk.Revit.UI;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Windows;
+using System.Windows.Media;
+using Autodesk.Revit.DB.Events;
+using WhatTheDynamo.Classes;
 using AW = Autodesk.Windows;
 
 namespace WhatTheDynamo
@@ -16,16 +22,21 @@ namespace WhatTheDynamo
             {
                 if (tab.AutomationName == tabName)
                 {
+                    Global.ManageTab = tab;
+
                     foreach (AW.RibbonPanel panel in tab.Panels)
                     {
                         if (panel.Source.Title == panelName)
                         {
-                            return panel.Source.Items.First(b => b.AutomationName.Equals(itemName));
+                            Global.VisualProgrammingPanel = panel;
+                            Global.DynamoButton = panel.Source.Items.First(b => b.AutomationName.Equals(itemName));
+                            return Global.DynamoButton;
                         }
                     }
                 }
             }
             return null;
         }
+        
     }
 }

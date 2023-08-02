@@ -16,7 +16,6 @@ namespace WhatTheDynamo
     {
         public Result OnStartup(UIControlledApplication a)
         {
-            Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo("es-ES");
             //store the version if it is found, and the package path if it is found
             Global.DynamoVersionFound = FindDynamoVersions();
             FindDynamoPackagePath();

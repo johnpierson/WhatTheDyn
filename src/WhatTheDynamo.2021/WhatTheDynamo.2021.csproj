@@ -90,7 +90,7 @@
 if $(ConfigurationName) == Debug copy "$(ProjectDir)$(OutputPath)WhatTheDynamo.dll" "$(AppData)\Autodesk\REVIT\Addins\2021"
 
 if $(ConfigurationName) == Release copy "$(ProjectDir)$(OutputPath)WhatTheDynamo.dll" "$(ProjectDir)..\..\_Release\2021"
-if $(ConfigurationName) == Release copy "$(ProjectDir)WhatTheDynamo.addin" "$(ProjectDir)..\..\_Release"</PostBuildEvent>
+</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.

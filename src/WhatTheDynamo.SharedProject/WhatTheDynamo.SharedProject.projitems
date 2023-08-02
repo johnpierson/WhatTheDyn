@@ -18,10 +18,4 @@
   <ItemGroup>
     <Content Include="$(MSBuildThisFileDirectory)WhatTheDynamo.addin" />
   </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources.en.resx">
-      <LastGenOutput>Resources.en.Designer.cs</LastGenOutput>
-      <Generator>ResXFileCodeGenerator</Generator>
-    </EmbeddedResource>
-  </ItemGroup>
 </Project>

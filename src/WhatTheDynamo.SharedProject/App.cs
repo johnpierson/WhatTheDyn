@@ -2,8 +2,10 @@ using Autodesk.Internal.InfoCenter;
 using Autodesk.Revit.UI;
 using Autodesk.Windows;
 using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Xml;
 using WhatTheDynamo.Classes;
 
@@ -14,6 +16,7 @@ namespace WhatTheDynamo
     {
         public Result OnStartup(UIControlledApplication a)
         {
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo("es-ES");
             //store the version if it is found, and the package path if it is found
             Global.DynamoVersionFound = FindDynamoVersions();
             FindDynamoPackagePath();
@@ -25,7 +28,7 @@ namespace WhatTheDynamo
             ShowNotification();
 
             //then rename the button
-            var button = Utilities.GetButton("Manage", "Visual Programming", "Dynamo");
+            var button = Utilities.GetButton("Manage", "visualprogramming_shr", "Dynamo");
             button.Text = $"Dynamo{Environment.NewLine}{Global.DynamoVersion.Major}.{Global.DynamoVersion.Minor}";
 
             return Result.Succeeded;
@@ -109,7 +112,7 @@ namespace WhatTheDynamo
             //build our notification bubble
             ResultItem result = new ResultItem
             {
-                Title = $"{Properties.Resources.NotificationBubble} {Global.DynamoVersion}",
+                Title = $"{Properties.Resources.ResourceManager.GetString("NotificationBubble")} {Global.DynamoVersion}",
                 Category = "What the Dyn?!",
                 IsNew = true,
                 Timestamp = DateTime.Now

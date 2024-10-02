@@ -111,7 +111,7 @@ namespace WhatTheDynamo
             //build our notification bubble
             ResultItem result = new ResultItem
             {
-                Title = $"{Properties.Resources.ResourceManager.GetString("NotificationBubble")} {Global.DynamoVersion}",
+                Title = $"{WhatTheDyn.Properties.Resources.ResourceManager.GetString("NotificationBubble")} {Global.DynamoVersion}",
                 Category = "What the Dyn?!",
                 IsNew = true,
                 Timestamp = DateTime.Now

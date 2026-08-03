@@ -23,7 +23,7 @@ sealed partial class Build
                 var contentsDirectory = bundlePath / "Contents";
                 foreach (var path in directories)
                 {
-                    var version = YearRegex.Match(path).Value;
+                    var version = GetRevitVersion(path);
 
                     Log.Information("Bundle files for version {Version}:", version);
                     CopyAssemblies(path, contentsDirectory / version);
@@ -38,7 +38,7 @@ sealed partial class Build
     {
         BuilderUtils.Build<PackageContentsBuilder>(builder =>
         {
-            var versions = directories.Select(path => YearRegex.Match(path).Value).Select(int.Parse);
+            var versions = directories.Select(GetRevitVersion).Select(int.Parse);
             var company = GetConfigurationValue(project, config => config.Name == "VendorId");
             var email = GetConfigurationValue(project, config => config.Name == "VendorEmail");
 

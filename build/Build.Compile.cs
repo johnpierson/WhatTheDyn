@@ -10,6 +10,7 @@ sealed partial class Build
         {
             foreach (var configuration in GlobBuildConfigurations())
                 DotNetBuild(settings => settings
+                    .SetProjectFile(Solution)
                     .SetConfiguration(configuration)
                     .SetVersion(Version)
                     .SetVerbosity(DotNetVerbosity.minimal));

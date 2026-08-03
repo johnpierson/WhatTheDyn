@@ -1,11 +1,9 @@
-﻿using Autodesk.Internal.InfoCenter;
+using Autodesk.Internal.InfoCenter;
 using Autodesk.Revit.UI;
 using Autodesk.Windows;
 using System;
-using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Xml;
 using WhatTheDynamo.Classes;
 
@@ -16,19 +14,32 @@ namespace WhatTheDynamo
     {
         public Result OnStartup(UIControlledApplication a)
         {
-            //store the version if it is found, and the package path if it is found
-            Global.DynamoVersionFound = FindDynamoVersions();
-            FindDynamoPackagePath();
+            //nothing this add-in does is worth failing Revit's startup over, so no exception escapes here.
+            //returning anything but Succeeded shows the user an error dialog on every launch
+            try
+            {
+                //store the version if it is found, and the package path if it is found
+                Global.DynamoVersionFound = FindDynamoVersions();
 
-            //if we didn't find the Dynamo installation, return a fail result
-            if (!Global.DynamoVersionFound) return Result.Failed;
+                //no Dynamo is a normal environment, not a failure: stay quiet
+                if (!Global.DynamoVersionFound) return Result.Succeeded;
 
-            //if we got here, we found Dynamo, show the notification
-            ShowNotification();
+                FindDynamoPackagePath();
 
-            //then rename the button
-            var button = Utilities.GetButton("Manage", "visualprogramming_shr", "Dynamo");
-            button.Text = $"Dynamo{Environment.NewLine}{Global.DynamoVersion.Major}.{Global.DynamoVersion.Minor}";
+                //if we got here, we found Dynamo, show the notification
+                ShowNotification();
+
+                //then rename the button, if it is where we expect it to be
+                var button = Utilities.GetButton("Manage", "visualprogramming_shr", "Dynamo");
+                if (button is not null)
+                {
+                    button.Text = $"Dynamo{Environment.NewLine}{Global.DynamoVersion.Major}.{Global.DynamoVersion.Minor}";
+                }
+            }
+            catch (Exception)
+            {
+                //a cosmetic add-in must never break Revit startup
+            }
 
             return Result.Succeeded;
         }
@@ -52,60 +63,66 @@ namespace WhatTheDynamo
             return true;
         }
 
-        internal bool FindDynamoPackagePath()
+        internal void FindDynamoPackagePath()
         {
-            if (!Global.DynamoVersionFound) return false;
+            if (!Global.DynamoVersionFound) return;
 
             //find the DynamoSettings.xml
             string probableXmlPath =
                 Path.Combine(Global.UserRoaming, "Dynamo", "Dynamo Revit", Global.TruncatedDynamoVersion);
 
-            //if the directory is found, try to read the XML
-            if (Directory.Exists(probableXmlPath))
+            //fall back to the conventional location unless the settings file names a user folder
+            Global.DefaultDynamoPackagePath = DefaultPackagePath();
+
+            if (!Directory.Exists(probableXmlPath)) return;
+
+            Global.DynamoSettingsXml = Path.Combine(probableXmlPath, "DynamoSettings.xml");
+
+            try
             {
-                Global.DynamoSettingsXml = Path.Combine(probableXmlPath, "DynamoSettings.xml");
+                XmlDocument xml = new XmlDocument();
+                xml.LoadXml(File.ReadAllText(Global.DynamoSettingsXml));
 
-                try
+                //package folders line from XML
+                var xnList = xml.SelectSingleNode("/PreferenceSettings/CustomPackageFolders");
+                if (xnList is null) return;
+
+                //skip the built in and the program data locations, and find the first one that a user uses.
+                foreach (XmlNode xn in xnList.ChildNodes)
                 {
-                    XmlDocument xml = new XmlDocument();
-                    xml.LoadXml(File.ReadAllText(Global.DynamoSettingsXml));
+                    string packagePath = xn.InnerText;
 
-                    //package folders line from XML
-                    var xnList = xml.SelectNodes("/PreferenceSettings/CustomPackageFolders")[0];
-                    var packagePaths = xnList.ChildNodes;
+                    if (IsBuiltInPackagePath(packagePath)) continue;
 
-                    //skip the built in and the program data locations, and find the first one that a user uses.
-                    foreach (XmlNode xn in packagePaths)
-                    {
-                        string packagePath = xn.InnerText;
-
-                        if (!packagePath.ToLower().Contains(@"builtinpackages") && !packagePath.ToLower().StartsWith("c:\\programdata\\"))
-                        {
-                            Global.DefaultDynamoPackagePath = packagePath;
-                            return true;
-                        }
-                    }
+                    Global.DefaultDynamoPackagePath = packagePath;
+                    return;
                 }
-                catch (Exception)
-                {
-                    //can't read settings file, set it to default
-                    Global.DefaultDynamoPackagePath =
-                        $"{Global.UserRoaming}\\Dynamo\\Dynamo Revit\\{Global.DynamoVersion.Major}.{Global.DynamoVersion.Minor}\\packages";
-                    return true;
-                }
-
             }
-            else
+            catch (Exception)
             {
-                //can't find settings file, set it to default
-                Global.DefaultDynamoPackagePath =
-                    $"{Global.UserRoaming}\\Dynamo\\Dynamo Revit\\{Global.DynamoVersion.Major}.{Global.DynamoVersion.Minor}\\packages";
-                return true;
+                //can't read settings file, keep the default set above
             }
-
-            //we reached this endpoint and probably couldn't find it, return false
-            return false;
         }
+
+        //ordinal comparisons only: under Turkish and Azerbaijani casing rules the 'I' in %BuiltInPackages%
+        //does not lower-case to an ASCII 'i', which let the literal token through as if it were a real folder
+        static bool IsBuiltInPackagePath(string packagePath)
+        {
+            if (string.IsNullOrWhiteSpace(packagePath)) return true;
+
+            if (packagePath.IndexOf("builtinpackages", StringComparison.OrdinalIgnoreCase) >= 0) return true;
+
+            //ProgramData is not necessarily on C:
+            var programData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
+            return !string.IsNullOrEmpty(programData) &&
+                   packagePath.StartsWith(programData, StringComparison.OrdinalIgnoreCase);
+        }
+
+        static string DefaultPackagePath()
+        {
+            return Path.Combine(Global.UserRoaming, "Dynamo", "Dynamo Revit", Global.TruncatedDynamoVersion, "packages");
+        }
+
         internal static void ShowNotification()
         {
             //build our notification bubble
@@ -117,10 +134,12 @@ namespace WhatTheDynamo
                 Timestamp = DateTime.Now
             };
 
-            //the dynamo package path was found, return it
-            if (!string.IsNullOrWhiteSpace(Global.DefaultDynamoPackagePath))
+            //the dynamo package path was found, make the bubble open it.
+            //settings files can hold tokens rather than real paths, so only link something Uri accepts
+            if (!string.IsNullOrWhiteSpace(Global.DefaultDynamoPackagePath) &&
+                Uri.TryCreate(Global.DefaultDynamoPackagePath, UriKind.Absolute, out var packageUri))
             {
-                result.Uri = new Uri(Global.DefaultDynamoPackagePath);
+                result.Uri = packageUri;
             }
 
             //show the result

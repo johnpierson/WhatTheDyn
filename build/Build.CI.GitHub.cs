@@ -10,7 +10,7 @@ sealed partial class Build
         .DependsOn(CreateInstaller, CreateBundle)
         .Requires(() => GitHubToken)
         .Requires(() => GitRepository)
-        .OnlyWhenStatic(() => IsServerBuild && GitRepository.IsOnMainOrMasterBranch())
+        .OnlyWhenStatic(() => IsServerBuild)
         .Executes(async () =>
         {
             GitHubTasks.GitHubClient = new GitHubClient(new ProductHeaderValue(Solution.Name))
@@ -21,13 +21,14 @@ sealed partial class Build
             var gitHubName = GitRepository.GetGitHubName();
             var gitHubOwner = GitRepository.GetGitHubOwner();
 
-            ValidateRelease();
+            ValidateTag();
+            await ValidateReleaseDoesNotExistAsync(gitHubOwner, gitHubName);
 
             var artifacts = Directory.GetFiles(ArtifactsDirectory, "*");
             var changelog = CreateGithubChangelog();
             Assert.NotEmpty(artifacts, "No artifacts were found to create the Release");
 
-            var newRelease = new NewRelease(Version)
+            var newRelease = new NewRelease(ReleaseTag)
             {
                 Name = Version,
                 Body = changelog,
@@ -38,25 +39,50 @@ sealed partial class Build
             await UploadArtifactsAsync(release, artifacts);
         });
 
-    void ValidateRelease()
-    {
-        var tags = GitTasks.Git("describe --tags --abbrev=0 --always", logInvocation: false, logOutput: false);
-        var latestTag = tags.First().Text;
-        if (latestTag == GitRepository.Commit) return;
+    /// <summary>The tag this release publishes under, e.g. "v2.0.0" for Version "2.0.0".</summary>
+    static string ReleaseTag => $"v{Version}";
 
-        Assert.False(latestTag == Version, $"A Release with the specified tag already exists in the repository: {Version}");
-        Log.Information("Version: {Version}", Version);
+    /// <summary>
+    ///     Releases are triggered by pushing a tag, so the tag must agree with the compiled version.
+    ///     The previous guard shelled out to "git describe --tags --always" and compared the result to
+    ///     the current commit; on a CI clone without tags that comparison always matched and the guard
+    ///     returned before checking anything, letting a duplicate release attempt fail later against the API.
+    /// </summary>
+    void ValidateTag()
+    {
+        var pushedTag = Environment.GetEnvironmentVariable("GITHUB_REF_NAME");
+        Assert.True(!string.IsNullOrWhiteSpace(pushedTag), "No tag was found: releases must be triggered by pushing a tag");
+        Assert.True(pushedTag == ReleaseTag,
+            $"The pushed tag '{pushedTag}' does not match the version being built ('{ReleaseTag}'). " +
+            $"Update Version in Build.Configuration.cs or push the matching tag.");
+
+        Log.Information("Releasing {Tag}", ReleaseTag);
+    }
+
+    async Task ValidateReleaseDoesNotExistAsync(string gitHubOwner, string gitHubName)
+    {
+        try
+        {
+            await GitHubTasks.GitHubClient.Repository.Release.Get(gitHubOwner, gitHubName, ReleaseTag);
+        }
+        catch (NotFoundException)
+        {
+            return;
+        }
+
+        Assert.Fail($"A release already exists for tag {ReleaseTag}. Bump Version in Build.Configuration.cs.");
     }
 
     static async Task UploadArtifactsAsync(Release release, IEnumerable<string> artifacts)
     {
         foreach (var file in artifacts)
         {
+            await using var stream = File.OpenRead(file);
             var releaseAssetUpload = new ReleaseAssetUpload
             {
                 ContentType = "application/x-binary",
                 FileName = Path.GetFileName(file),
-                RawData = File.OpenRead(file)
+                RawData = stream
             };
 
             await GitHubTasks.GitHubClient.Repository.Release.UploadAsset(release, releaseAssetUpload);
@@ -64,22 +90,18 @@ sealed partial class Build
         }
     }
 
+    /// <summary>
+    ///     Release notes are the changelog entry for this version. A missing or empty entry used to
+    ///     log a warning and publish a release with an empty body; it now fails the build instead.
+    /// </summary>
     string CreateGithubChangelog()
     {
-        if (!File.Exists(ChangeLogPath))
-        {
-            Log.Warning("Unable to locate the changelog file: {Log}", ChangeLogPath);
-            return string.Empty;
-        }
-
+        Assert.FileExists(ChangeLogPath);
         Log.Information("Changelog: {Path}", ChangeLogPath);
 
         var changelog = BuildChangelog();
-        if (changelog.Length == 0)
-        {
-            Log.Warning("No version entry exists in the changelog: {Version}", Version);
-            return string.Empty;
-        }
+        Assert.True(changelog.Length > 0,
+            $"No '# {Version}' entry exists in {ChangeLogPath}. Add one before releasing.");
 
         WriteCompareUrl(changelog);
         return changelog.ToString();
@@ -87,17 +109,30 @@ sealed partial class Build
 
     void WriteCompareUrl(StringBuilder changelog)
     {
-        var tags = GitTasks.Git("describe --tags --abbrev=0 --always", logInvocation: false, logOutput: false);
-        var latestTag = tags.First().Text;
-        if (latestTag == GitRepository.Commit) return;
+        var previousTag = GetPreviousReleaseTag();
+        if (previousTag is null) return;
 
-        if (changelog[^1] != '\r' || changelog[^1] != '\n') changelog.AppendLine(Environment.NewLine);
+        changelog.AppendLine();
+        changelog.AppendLine();
         changelog.Append("Full changelog: ");
-        changelog.Append(GitRepository.GetGitHubCompareTagsUrl(Version, latestTag));
+        changelog.Append(GitRepository.GetGitHubCompareTagsUrl(ReleaseTag, previousTag));
+    }
+
+    /// <summary>Most recent release tag before the one being published, or null when this is the first.</summary>
+    static string GetPreviousReleaseTag()
+    {
+        var tags = GitTasks.Git($"tag --list --sort=-v:refname", logInvocation: false, logOutput: false)
+            .Select(output => output.Text.Trim())
+            .Where(tag => tag.Length > 0 && tag != ReleaseTag)
+            .ToList();
+
+        return tags.FirstOrDefault();
     }
 
     StringBuilder BuildChangelog()
     {
+        //headings are matched exactly: a Contains check would let "# 1.1.10" satisfy version "1.1.1"
+        var heading = $"# {Version}";
         const string separator = "# ";
 
         var hasEntry = false;
@@ -112,7 +147,7 @@ sealed partial class Build
                 continue;
             }
 
-            if (line.StartsWith(separator) && line.Contains(Version))
+            if (line.Trim() == heading)
             {
                 hasEntry = true;
             }
@@ -124,14 +159,14 @@ sealed partial class Build
 
     static void TrimEmptyLines(StringBuilder builder)
     {
-        if (builder.Length == 0) return;
-
-        while (builder[^1] == '\r' || builder[^1] == '\n')
+        //length is rechecked each iteration: an entry of nothing but blank lines would otherwise
+        //empty the builder and then index into it
+        while (builder.Length > 0 && (builder[^1] == '\r' || builder[^1] == '\n'))
         {
             builder.Remove(builder.Length - 1, 1);
         }
 
-        while (builder[0] == '\r' || builder[0] == '\n')
+        while (builder.Length > 0 && (builder[0] == '\r' || builder[0] == '\n'))
         {
             builder.Remove(0, 1);
         }

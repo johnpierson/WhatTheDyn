@@ -1,4 +1,6 @@
-﻿sealed partial class Build
+﻿using Nuke.Common.ProjectModel;
+
+sealed partial class Build
 {
     const string Version = "1.1.1";
     readonly AbsolutePath ArtifactsDirectory = RootDirectory / "output";
@@ -21,5 +23,18 @@
         {
             {Solution.Installer, Solution.WhatTheDyn}
         };
+    }
+
+    /// <summary>
+    ///     Locates the per-Revit-version publish folders produced by Nice3point.Revit.Build.Tasks,
+    ///     which names them "Revit &lt;year&gt; &lt;Configuration&gt; addin" - the space-delimited " Release "
+    ///     is what distinguishes them from the plain "Release R25" output folders.
+    ///     Renaming the solution configurations or upgrading that package can break this contract.
+    /// </summary>
+    static string[] GetPublishDirectories(Project project)
+    {
+        var directories = Directory.GetDirectories(project.Directory, "* Release *", SearchOption.AllDirectories);
+        Assert.NotEmpty(directories, $"No published add-in folders were found for the project: {project.Name}");
+        return directories;
     }
 }

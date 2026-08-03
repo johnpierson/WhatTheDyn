@@ -1,0 +1,12 @@
+version: 2
+updates:
+  # Package versions are pinned deliberately, so updates arrive as reviewable PRs
+  # rather than silently at restore time.
+  - package-ecosystem: nuget
+    directory: /
+    schedule:
+      interval: weekly
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

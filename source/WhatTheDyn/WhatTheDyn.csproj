@@ -13,16 +13,25 @@
         <Configurations>$(Configurations);Release R25;Release R26;Release R27</Configurations>
     </PropertyGroup>
 
+    <!--
+        RevitApiVersion is pinned exactly rather than floated as $(RevitVersion).*.
+        Floating ranges previously broke the build with no commit to this repo, when a
+        newer package stopped supplying a transitive dependency the source relied on.
+        Bump these deliberately.
+    -->
     <PropertyGroup Condition="$(Configuration.Contains('R25'))">
         <RevitVersion>2025</RevitVersion>
+        <RevitApiVersion>2025.4.50</RevitApiVersion>
         <TargetFramework>net8.0-windows</TargetFramework>
     </PropertyGroup>
     <PropertyGroup Condition="$(Configuration.Contains('R26'))">
         <RevitVersion>2026</RevitVersion>
+        <RevitApiVersion>2026.4.10</RevitApiVersion>
         <TargetFramework>net8.0-windows</TargetFramework>
     </PropertyGroup>
     <PropertyGroup Condition="$(Configuration.Contains('R27'))">
         <RevitVersion>2027</RevitVersion>
+        <RevitApiVersion>2027.2.0</RevitApiVersion>
         <TargetFramework>net10.0-windows</TargetFramework>
     </PropertyGroup>
 
@@ -33,10 +42,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Nice3point.Revit.Build.Tasks" Version="2.*" />
-        <PackageReference Include="Nice3point.Revit.Api.RevitAPI" Version="$(RevitVersion).*" />
-        <PackageReference Include="Nice3point.Revit.Api.RevitAPIUI" Version="$(RevitVersion).*" />
-        <PackageReference Include="Nice3point.Revit.Api.AdWindows" Version="$(RevitVersion).*" />
+        <PackageReference Include="Nice3point.Revit.Build.Tasks" Version="2.0.2" />
+        <PackageReference Include="Nice3point.Revit.Api.RevitAPI" Version="$(RevitApiVersion)" />
+        <PackageReference Include="Nice3point.Revit.Api.RevitAPIUI" Version="$(RevitApiVersion)" />
+        <PackageReference Include="Nice3point.Revit.Api.AdWindows" Version="$(RevitApiVersion)" />
     </ItemGroup>
 
     <ItemGroup>

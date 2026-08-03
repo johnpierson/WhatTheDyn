@@ -9,8 +9,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="WixSharp.bin" Version="1.*"/>
-        <PackageReference Include="WixSharp.wix.bin" Version="3.*"/>
+        <!-- Pinned: these execute during packaging, so a floating range would silently change what ships. -->
+        <PackageReference Include="WixSharp.bin" Version="1.26.0"/>
+        <PackageReference Include="WixSharp.wix.bin" Version="3.14.1"/>
     </ItemGroup>
 
 </Project>

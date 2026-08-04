@@ -19,8 +19,7 @@ sealed partial class Build
                     .FirstOrDefault()
                     .NotNull($"No installer file was found for the project: {installer.Name}");
 
-                var directories = Directory.GetDirectories(project.Directory, "* Release *", SearchOption.AllDirectories);
-                Assert.NotEmpty(directories, "No files were found to create an installer");
+                var directories = GetPublishDirectories(project);
 
                 var arguments = directories.Select(path => path.DoubleQuoteIfNeeded()).JoinSpace();
                 var process = ProcessTasks.StartProcess(exeFile, arguments, logInvocation: false, logger: InstallLogger);

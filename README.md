@@ -1,106 +1,93 @@
-# WhatTheDyn
+<h1 align="center">
+  <br>
+  <img src="/_documentation/whatTheDyn-Logo.png" alt="whatTheDyn" width="400">
+  <br>
+</h1>
 
-Autodesk Revit plugin project organised into multiple solution files that target versions 2020 - 2025.
+<h3 align="center">A plugin for Revit to tell you which version of Dynamo is frickin loaded.</h3>
 
-### Technologies Used
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/johnpierson/WhatTheDyn/graphs/commit-activity)
+[![GitHub license](https://img.shields.io/github/license/johnpierson/WhatTheDyn)](https://github.com/johnpierson/WhatTheDyn/blob/main/LICENSE)
 
-* C# 12
-* .NET Framework 4.8
-* .NET 8
+_If you feel so inclined, here is a method to donate to this project_
 
-### Getting Started
+<a href="https://www.buymeacoffee.com/j0hnp" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>
 
-Before you can build this project, you will need to install .NET, depending upon the solution file you are building. If you haven't already installed these
-frameworks, you can do so by visiting the following:
+## What it does
 
-* [.NET Framework 4.8](https://dotnet.microsoft.com/download/dotnet-framework/net48)
-* [.NET 8](https://dotnet.microsoft.com/en-us/download/dotnet)
+On Revit startup, What the Dyn?! detects the loaded Dynamo version and:
 
-After installing the necessary frameworks, clone this repository to your local machine and navigate to the project directory.
+- renames the ribbon's **Dynamo** button to include that version, and
+- shows a notification bubble naming the version, which you can click to open your Dynamo packages folder.
 
-### Building
+There is also a **Show Dynamo version.** command under Add-Ins if you want the bubble again later.
 
-We recommend JetBrains Rider as preferred IDE, since it has outstanding .NET support. If you don't have Rider installed, you can download it
-from [here](https://www.jetbrains.com/rider/).
+## Supported versions
 
-1. Open JetBrains Rider
-2. Click on `File -> Open` and choose the RevitLookup.sln file to open.
-3. In the `Solutions Configuration` drop-down menu, select `Release R25` or `Debug R25`. Suffix `R25` means compiling for the Revit 2025.
-4. After the solution loads, you can build it by clicking on `Build -> Build Solution`.
+Revit **2025, 2026 and 2027**.
 
-Also, you can use Visual Studio. If you don't have Visual Studio installed, download it from [here](https://visualstudio.microsoft.com/downloads/).
+Revit 2020–2024 were supported through version 1.1.1 and dropped in 2.0.0. Note that the 1.1.1 installers shipped a manifest that pointed at the wrong assembly name, so that release never actually loaded; if you have it installed, uninstall it.
 
-1. Open Visual Studio
-2. Click on `File -> Open -> Project/Solution` and locate your solution file to open.
-3. In the `Solutions Configuration` drop-down menu, select `Release R25` or `Debug R25`. Suffix `R25` means compiling for the Revit 2025.
-4. After the solution loads, you can build it by clicking on `Build -> Build Solution`.
+## Installation
 
-### MSI installer and bundle build on the local machine
+Download an installer from the [latest release](https://github.com/johnpierson/WhatTheDyn/releases/latest):
 
-To build the project for all versions, create the installer and bundle, the project uses [NUKE](https://github.com/nuke-build/nuke)
+- **SingleUser** installs for the current user only (`%AppData%\Autodesk\Revit\Addins`).
+- **MultiUser** installs for everyone on the machine (`%ProgramData%\Autodesk\Revit\Addins`) and needs admin rights.
 
-To execute your NUKE build locally, you can follow these steps:
+Pick one and stay with it. Windows Installer does not upgrade across installation scopes, so if you want to switch, uninstall the other one first.
 
-1. **Install NUKE as a global tool**. First, make sure you have NUKE installed as a global tool. You can install it using dotnet CLI:
+`WhatTheDyn.zip` on the same release page is an Autodesk application bundle, if you prefer deploying that way.
 
-    ```powershell
-    dotnet tool install Nuke.GlobalTool --global
-    ```
+## Building
 
-   You only need to do this once on your machine.
+You need the [.NET 10 SDK](https://dotnet.microsoft.com/download) (`global.json` requires it; Revit 2027 targets .NET 10, and the 2025/2026 configurations target .NET 8, which the .NET 10 SDK also builds).
 
-2. **Navigate to your project directory**. Open a terminal / command prompt and navigate to your project's root directory.
-3. **Run the build**. Once you have navigated to your project's root directory, you can run the NUKE build by calling:
+Open `WhatTheDyn.sln` in Visual Studio or JetBrains Rider and pick a configuration — the `R25`/`R26`/`R27` suffix selects the Revit version, so `Debug R27` builds against Revit 2027. Debug configurations deploy the add-in into your local Revit Addins folder so you can F5 straight into Revit; Release configurations deliberately do not touch your Revit installation.
 
-   Compile:
-   ```powershell
-   nuke
-   ```
+To build everything the way CI does, use [NUKE](https://github.com/nuke-build/nuke):
 
-   Create installer:
-   ```powershell
-   nuke createinstaller
-   ```
+```powershell
+dotnet tool install Nuke.GlobalTool --global   # once per machine
+```
 
-   Create installer and bundle:
-   ```powershell
-   nuke createinstaller createbundle
-   ```
+```powershell
+nuke                    # compile every Release configuration
+nuke VerifyAddinLayout  # compile, then check each published manifest matches the assemblies beside it
+nuke CreateInstaller    # build the two MSIs
+nuke CreateBundle       # build the .bundle zip
+```
 
-   This command will execute the NUKE build defined in your project.
+Artifacts land in `output/`.
 
-### Create new release on GitHub
+## Releasing
 
-Publishing the release, generating the installer and bundle, is performed automatically on GitHub.
+Releases are published by CI when a version tag is pushed. Pushing to `main` only builds and verifies.
 
-To execute your NUKE build on GitHub, you can follow these steps:
+1. Bump `Version` in [build/Build.Configuration.cs](build/Build.Configuration.cs).
+2. Add a matching `# <version>` section to [Changelog.md](Changelog.md) — this becomes the release notes, and the release fails if it is missing.
+3. Commit and push to `main`.
+4. Tag it `v<version>` (for example `v2.0.0`) and push the tag.
 
-1. Merge all your commits into the `main` / `master` branch.
-2. Navigate to the `Build/Build.Configuration.cs` file.
-3. Increase the `Version` value.
-4. Make a commit.
-5. Push your changes to GitHub, everything will happen automatically, and you can follow the progress in the Actions section of the repository page.
+The release job builds all configurations, verifies the add-in layout, creates the installers and bundle, and attaches them to a new GitHub release.
 
-### Solution structure
+## Repository structure
 
-| Folder  | Description                                                                |
-|---------|----------------------------------------------------------------------------|
-| build   | Nuke build system. Used to automate project builds                         |
-| install | Add-in installer, called implicitly by the Nuke build                      |
-| source  | Project source code folder. Contains all solution projects                 |
-| output  | Folder of generated files by the build system, such as bundles, installers |
+| Folder           | Description                                                     |
+|------------------|-----------------------------------------------------------------|
+| `source/WhatTheDyn` | The add-in itself                                            |
+| `build`          | NUKE build system                                               |
+| `install`        | WixSharp installer, invoked by the build                        |
+| `output`         | Generated installers and bundles (not committed)                |
 
-### Project structure
+## License
 
-| Folder     | Description                                                                                                                                                                                          |
-|------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Commands   | External commands invoked from the Revit ribbon. Registered in the `Application` class                                                                                                               |
-| Models     | Classes that encapsulate the app's data, include data transfer objects (DTOs). More [details](https://learn.microsoft.com/en-us/dotnet/architecture/maui/mvvm).                                      |
-| ViewModels | Classes that implement properties and commands to which the view can bind data. More [details](https://learn.microsoft.com/en-us/dotnet/architecture/maui/mvvm).                                     |
-| Views      | Classes that are responsible for defining the structure, layout and appearance of what the user sees on the screen. More [details](https://learn.microsoft.com/en-us/dotnet/architecture/maui/mvvm). |
-| Resources  | Images, sounds, localisation files, etc.                                                                                                                                                             |
-| Utils      | Utilities, extensions, helpers used across the application                                                                                                                                           |
+This code is licensed under [BSD 3-Clause](LICENSE).
 
-### Learn More
+## Contributors
 
-* You can explore more in the [RevitTemplates wiki](https://github.com/Nice3point/RevitTemplates/wiki) page.
+This tool is primarily managed by the author of http://designtechunraveled.com and by [People Like You™](https://github.com/johnpierson/WhatTheDyn/graphs/contributors).
+
+## Help improve What the Dyn?!
+
+If you're interested in contributing, just submit a [pull request](https://github.com/johnpierson/WhatTheDyn/pulls) or a [feature request](https://github.com/johnpierson/WhatTheDyn/issues).

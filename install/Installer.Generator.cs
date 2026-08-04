@@ -11,13 +11,19 @@ public static class Generator
 {
     public static WixEntity[] GenerateWixEntities(IEnumerable<string> args)
     {
-        var versionRegex = new Regex(@"\d+");
+        //four digits specifically: \d+ would happily read "24" out of a folder named "R24 addin"
+        //and produce an Addins\24 directory that Revit never scans
+        var versionRegex = new Regex(@"\d{4}");
         var versionStorages = new Dictionary<string, List<WixEntity>>();
 
         foreach (var directory in args)
         {
             var directoryInfo = new DirectoryInfo(directory);
-            var fileVersion = versionRegex.Match(directoryInfo.Name).Value;
+            var versionMatch = versionRegex.Match(directoryInfo.Name);
+            if (!versionMatch.Success)
+                throw new InvalidOperationException($"No Revit version could be read from the folder name: {directoryInfo.Name}");
+
+            var fileVersion = versionMatch.Value;
             var feature = new Feature
             {
                 Name = $"Revit {fileVersion}",
